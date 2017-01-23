@@ -25,7 +25,7 @@ def main():
 
     # evaluation
     # Runtime.FeatureCalculation(dev_dict, 'dev_set.csv')
-    Test.FeatureCalculation('mini_test_set.csv')
+    Test.FeatureCalculation('mini_dev_set.csv')
 
 if __name__ == "__main__":
     main()

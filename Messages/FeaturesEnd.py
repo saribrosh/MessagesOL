@@ -1,11 +1,13 @@
 import nltk
 import enchant
 import csv
+import re
 
 EOS_PUNCT_SCORE = 4
 FACTOR = 22
 FULL_WORD_SCORE = 2
 UNCOMMON_LAST_TOKEN_SCORE = -2.5
+END_IN_SERIAL = 10
 
 
 def EOSPunctuation(segment):
@@ -80,5 +82,23 @@ def unlikely_last_token_penalty(segment):
         if segment_as_list[-1] in unlikely_non_emoticon_last_chars:
             return UNCOMMON_LAST_TOKEN_SCORE
 
+    return 0
+
+def serial_number(segment):
+    pattern = re.compile(r"(\(([2-9])\/([0-9])\))|(([2-9])\/([0-9])\-\-\-OL)")
+    serial_found = re.match(pattern, segment)
+    if serial_found:
+        if serial_found.group(2):
+            serial = int(serial_found.group(2))
+        elif serial_found.group(5):
+            serial = int(serial_found.group(5))
+        if serial_found.group(3):
+            total = int(serial_found.group(3))
+        elif serial_found.group(6):
+            total = int(serial_found.group(6))
+        if serial == total:
+            return END_IN_SERIAL
+        else:
+            return 0
     return 0
 

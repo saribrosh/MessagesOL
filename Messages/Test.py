@@ -4,6 +4,9 @@ import FeaturesEnd
 import FeaturesMiddle
 import csv
 
+STANDALONE_BEGINNING = 10
+STANDALONE_END = 10
+
 def is_correct_first_in_group(element, beginning_score):
     if element[4] == '-1':
         return -1
@@ -83,30 +86,41 @@ def FeatureCalculation(set):
     for group_id, group in groups_dict.iteritems():
         for element in group:
             text = element[2]
-            beginning_score = \
-                FeaturesBeginning.capitalization(text) + \
-                FeaturesBeginning.first_token_likelihood(text) + \
-                FeaturesBeginning.full_word_indication(text) + \
-                FeaturesBeginning.common_first_word(text)
-            isCorrectFirstInGroup = is_correct_first_in_group(element, beginning_score)
-            if (isCorrectFirstInGroup == -1):
-                substract_from_total_count += 1
-            if (isCorrectFirstInGroup == 1):
-                correct_beginning_segments += 1
+            text = text.decode("utf-8")
+            text = text.encode("ascii","ignore")
+            if not text:
+                beginning_score = STANDALONE_BEGINNING
+                middle_score = 0
+                end_score = STANDALONE_END
+            else:
+                beginning_score = \
+                    FeaturesBeginning.capitalization(text) + \
+                    FeaturesBeginning.first_token_likelihood(text) + \
+                    FeaturesBeginning.full_word_indication(text) + \
+                    FeaturesBeginning.common_first_word(text) + \
+                    FeaturesBeginning.serial_number(text)
+                isCorrectFirstInGroup = is_correct_first_in_group(element, beginning_score)
+                if (isCorrectFirstInGroup == -1):
+                    substract_from_total_count += 1
+                if (isCorrectFirstInGroup == 1):
+                    correct_beginning_segments += 1
 
-            middle_score = FeaturesMiddle.cut_from_both_sides(text)
-            isCorrectMiddleInGroup = is_correct_middle_in_group(element, middle_score)
-            if (isCorrectMiddleInGroup == 1):
-                correct_middle_segments += 1
+                middle_score = \
+                    FeaturesMiddle.cut_from_both_sides(text) + \
+                    FeaturesMiddle.serial_number(text)
+                isCorrectMiddleInGroup = is_correct_middle_in_group(element, middle_score)
+                if (isCorrectMiddleInGroup == 1):
+                    correct_middle_segments += 1
 
-            end_score = \
-                FeaturesEnd.EOSPunctuation(text) + \
-                FeaturesEnd.full_word_indication(text) + \
-                FeaturesEnd.last_token_likelihood(text) + \
-                FeaturesEnd.unlikely_last_token_penalty(text)
-            isCorrectLastInGroup = is_correct_last_in_group(element, end_score)
-            if (isCorrectLastInGroup == 1):
-                correct_end_segments += 1
+                end_score = \
+                    FeaturesEnd.EOSPunctuation(text) + \
+                    FeaturesEnd.full_word_indication(text) + \
+                    FeaturesEnd.last_token_likelihood(text) + \
+                    FeaturesEnd.unlikely_last_token_penalty(text) + \
+                    FeaturesEnd.serial_number(text)
+                isCorrectLastInGroup = is_correct_last_in_group(element, end_score)
+                if (isCorrectLastInGroup == 1):
+                    correct_end_segments += 1
 
             output_row = element + [beginning_score] + [isCorrectFirstInGroup] + \
                          [middle_score] + [isCorrectMiddleInGroup] + \
@@ -114,22 +128,16 @@ def FeatureCalculation(set):
             output_rows.append(output_row)
 
 
-    with open('results_file_.csv', 'wb') as csv_file:
+    with open('mini_dev_results_file_2.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(header)
         for row in output_rows:
             writer.writerow(row)
-        print 'number_of_segments: ', number_of_segments
-        print 'substract_from_total_count: ', substract_from_total_count
         total_valid_sentences = number_of_segments-substract_from_total_count
-        print "correct_beginning_segments: ", correct_beginning_segments
-        print "total_valid_sentences: ", total_valid_sentences
         beginning_precision = correct_beginning_segments/total_valid_sentences
-        print 'beginning_precision: ', beginning_precision
         middle_precision = correct_middle_segments/float(total_valid_sentences)
         end_precision = correct_end_segments/float(total_valid_sentences)
         writer.writerow(['total valid sentences: ' + str(total_valid_sentences)])
-        print ('total valid sentences: ', total_valid_sentences)
 
         writer.writerow(['correct beginning segments: ' + str(correct_beginning_segments)])
         print ('correct beginning segments: ', correct_beginning_segments)
