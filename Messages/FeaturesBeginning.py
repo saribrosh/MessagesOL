@@ -2,11 +2,13 @@ from nltk.tag import pos_tag
 import nltk
 import csv
 import enchant
+import re
 
 CAP_SCORE = 5
 FACTOR = 20
 FULL_WORD_SCORE = 2
 COMMON_FIRST_TOKEN_SCORE = 2.5
+FIRST_IN_SERIAL = 10
 
 
 def capitalization(segment):
@@ -77,5 +79,13 @@ def common_first_word(segment):
     first_token = (segment[0]).lower()
     if first_token in common_first_words_list:
         return COMMON_FIRST_TOKEN_SCORE
+    else:
+        return 0
+
+def serial_number(segment):
+    pattern = re.compile(r"\((1\/[0-9]\))|(1\/[0-9]\-\-\-OL)")
+    serial_found = re.match(pattern, segment)
+    if serial_found:
+        return FIRST_IN_SERIAL
     else:
         return 0
