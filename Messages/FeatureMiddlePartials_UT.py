@@ -1,10 +1,10 @@
-import FeaturesMiddle
+import FeaturesMiddleSegmentLevel
 
 def main():
 
     # cut from both sides
     sentence = "nt to go hom"
-    is_cut_ind = FeaturesMiddle.is_correct_middle_in_group(sentence)
+    is_cut_ind = FeaturesMiddleSegmentLevel.is_correct_middle_in_group(sentence)
     if is_cut_ind > 0:
         print 'pass: cut'
     else:
@@ -12,7 +12,7 @@ def main():
 
     # cut from one side
     sentence = "want to go hom"
-    is_cut_ind = FeaturesMiddle.is_correct_middle_in_group(sentence)
+    is_cut_ind = FeaturesMiddleSegmentLevel.is_correct_middle_in_group(sentence)
     if is_cut_ind == 0:
         print 'pass: not cut'
     else:
@@ -20,7 +20,7 @@ def main():
 
     # not cut
     sentence = "want to go home"
-    is_cut_ind = FeaturesMiddle.is_correct_middle_in_group(sentence)
+    is_cut_ind = FeaturesMiddleSegmentLevel.is_correct_middle_in_group(sentence)
     if is_cut_ind == 0:
         print 'pass: not cut'
     else:

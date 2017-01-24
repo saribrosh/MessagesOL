@@ -1,11 +1,11 @@
-import FeaturesEnd
+import FeaturesEndSegmentLevel
 
 def main():
 
     # expected results is (frequency as last / frequency as not last)
     # last token is capitalized
     sentence = "I want to go HOME"
-    ratio = FeaturesEnd.last_token_likelihood(sentence)
+    ratio = FeaturesEndSegmentLevel.last_token_likelihood(sentence)
     if ratio == 20*(float(9)/float(365-9)):
         print 'pass: capitalized'
     else:
@@ -13,7 +13,7 @@ def main():
 
     # lowercase first token
     sentence = "you want to go there"
-    ratio = FeaturesEnd.last_token_likelihood(sentence)
+    ratio = FeaturesEndSegmentLevel.last_token_likelihood(sentence)
     if ratio == 20*(float(83)/float(2698-83)):
         print 'pass: lowercase'
     else:

@@ -1,11 +1,11 @@
-import FeaturesBeginning
+import FeaturesBeginningSegmentLevel
 
 def main():
 
     # expected results is (frequency as first / frequency as not first)
     # first token is capitalized
     sentence = "I want to go home"
-    ratio = FeaturesBeginning.first_token_likelihood(sentence)
+    ratio = FeaturesBeginningSegmentLevel.first_token_likelihood(sentence)
     if ratio == 20*(float(5497)/float(26268-5497)):
         print 'pass: I'
     else:
@@ -13,7 +13,7 @@ def main():
 
     # lowercase first token
     sentence = "you want to go home"
-    ratio = FeaturesBeginning.first_token_likelihood(sentence)
+    ratio = FeaturesBeginningSegmentLevel.first_token_likelihood(sentence)
     if ratio == 20*(float(857)/float(17878-857)):
         print 'pass: you'
     else:

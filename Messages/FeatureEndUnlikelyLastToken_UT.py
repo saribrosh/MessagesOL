@@ -1,10 +1,10 @@
-import FeaturesEnd
+import FeaturesEndSegmentLevel
 
 def main():
 
     # last token is predefined as unlikely to be last
     sentence = "I want to go home but"
-    res = FeaturesEnd.unlikely_last_token_penalty(sentence)
+    res = FeaturesEndSegmentLevel.unlikely_last_token_penalty(sentence)
     if res < 0:
         print 'pass: unlikely last token'
     else:
@@ -12,7 +12,7 @@ def main():
 
     # last token is not predefined as unlikely to be last
     sentence = "I want to go home"
-    res = FeaturesEnd.unlikely_last_token_penalty(sentence)
+    res = FeaturesEndSegmentLevel.unlikely_last_token_penalty(sentence)
     if res == 0:
         print 'pass: regular last token'
     else:
@@ -20,7 +20,7 @@ def main():
 
     # last token is a right bracket that's part of an emoticon
     sentence = "I want to go home :("
-    res = FeaturesEnd.unlikely_last_token_penalty(sentence)
+    res = FeaturesEndSegmentLevel.unlikely_last_token_penalty(sentence)
     if res == 0:
         print 'pass: right bracket as part of emoticon'
     else:
@@ -28,7 +28,7 @@ def main():
 
     # last token is a right bracket that's not part of an emoticon
     sentence = "I want to go home ["
-    res = FeaturesEnd.unlikely_last_token_penalty(sentence)
+    res = FeaturesEndSegmentLevel.unlikely_last_token_penalty(sentence)
     if res < 0:
         print 'pass: right bracket'
     else:

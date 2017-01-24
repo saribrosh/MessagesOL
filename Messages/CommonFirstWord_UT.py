@@ -1,19 +1,19 @@
-import FeaturesBeginning
+import FeaturesBeginningSegmentLevel
 
 def main():
 
     # first token in lexicon
     sentence = "Were you at the bar last night"
-    result = FeaturesBeginning.common_first_word(sentence)
-    if result == FeaturesBeginning.COMMON_FIRST_TOKEN_SCORE:
+    result = FeaturesBeginningSegmentLevel.common_first_word(sentence)
+    if result == FeaturesBeginningSegmentLevel.COMMON_FIRST_TOKEN_SCORE:
         print 'pass: word in lexicon'
     else:
         print 'failed: word in lexicon'
 
     # first token not in lexicon
     sentence = "you want to go home"
-    result = FeaturesBeginning.common_first_word(sentence)
-    if result == FeaturesBeginning.COMMON_FIRST_TOKEN_SCORE:
+    result = FeaturesBeginningSegmentLevel.common_first_word(sentence)
+    if result == FeaturesBeginningSegmentLevel.COMMON_FIRST_TOKEN_SCORE:
         print 'failed: word not in lexicon'
     else:
         print 'pass: word not in lexicon'

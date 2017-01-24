@@ -1,10 +1,10 @@
-import FeaturesEnd
+import FeaturesEndSegmentLevel
 
 def main():
 
     # real word
     sentence = "I want to go home"
-    is_known_last_token = FeaturesEnd.full_word_indication(sentence)
+    is_known_last_token = FeaturesEndSegmentLevel.full_word_indication(sentence)
     if is_known_last_token > 0:
         print 'pass: last token is a known full word'
     else:
@@ -12,7 +12,7 @@ def main():
 
     # non word
     sentence = "you want to go hom"
-    is_known_last_token = FeaturesEnd.full_word_indication(sentence)
+    is_known_last_token = FeaturesEndSegmentLevel.full_word_indication(sentence)
     if is_known_last_token == 0:
         print 'pass: last token is not a known full word'
     else:
@@ -20,7 +20,7 @@ def main():
 
     # contraction
     sentence = "you should go, but I can't"
-    is_known_last_token = FeaturesEnd.full_word_indication(sentence)
+    is_known_last_token = FeaturesEndSegmentLevel.full_word_indication(sentence)
     if is_known_last_token > 0:
         print 'pass: last token is a known contraction'
     else:
@@ -28,7 +28,7 @@ def main():
 
     # emoticon
     sentence = "you should go, but I can't :)"
-    is_known_last_token = FeaturesEnd.full_word_indication(sentence)
+    is_known_last_token = FeaturesEndSegmentLevel.full_word_indication(sentence)
     if is_known_last_token > 0:
         print 'pass: last token is an emoticon'
     else:
@@ -36,7 +36,7 @@ def main():
 
     # punctuation
     sentence = "you should go, but I can't,"
-    is_known_last_token = FeaturesEnd.full_word_indication(sentence)
+    is_known_last_token = FeaturesEndSegmentLevel.full_word_indication(sentence)
     if is_known_last_token == 0:
         print 'pass: last token is a punctuation mark'
     else:
@@ -44,7 +44,7 @@ def main():
 
     # test
     sentence = "you to feel comfortable. I am P"
-    is_known_last_token = FeaturesEnd.full_word_indication(sentence)
+    is_known_last_token = FeaturesEndSegmentLevel.full_word_indication(sentence)
     if is_known_last_token == 0:
         print 'pass: temp test'
     else:
