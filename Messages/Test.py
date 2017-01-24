@@ -6,12 +6,14 @@ import csv
 
 STANDALONE_BEGINNING = 10
 STANDALONE_END = 10
+END_THRESHOLD = 2.3
+BEGINNING_THRESHOLD = 4
 
-def is_correct_first_in_group(element, beginning_score):
+def is_correct_first_in_group(element, is_beginning):
     if element[4] == '-1':
         return -1
     else:
-        if (beginning_score > 4):
+        if (is_beginning):
             if int(element[6]) == 1:
                 return 1
             else:
@@ -22,11 +24,11 @@ def is_correct_first_in_group(element, beginning_score):
             else:
                 return 0
 
-def is_correct_middle_in_group(element, middle_score):
+def is_correct_middle_in_group(element, is_middle):
     if element[4] == '-1':
         return -1
     else:
-        if (middle_score > 5):
+        if (is_middle):
             if int(element[7]) == 1:
                 return 1
             else:
@@ -37,11 +39,11 @@ def is_correct_middle_in_group(element, middle_score):
             else:
                 return 0
 
-def is_correct_last_in_group(element, end_score):
+def is_correct_last_in_group(element, is_end):
     if element[4] == '-1':
         return -1
     else:
-        if (end_score > 2.3):
+        if (is_end):
             if int(element[8]) == 1:
                 return 1
             else:
@@ -78,7 +80,7 @@ def FeatureCalculation(set):
              ['Middle Score'] + ['Middle Correct'] + \
              ['End Score'] + ['End Correct']
     output_rows = []
-    substract_from_total_count = 0
+    subtract_from_total_count = 0
     correct_beginning_segments = 0
     correct_middle_segments = 0
     correct_end_segments = 0
@@ -93,24 +95,19 @@ def FeatureCalculation(set):
                 middle_score = 0
                 end_score = STANDALONE_END
             else:
+                if (element[4] == -1):
+                    subtract_from_total_count += 1
+
                 beginning_score = \
                     FeaturesBeginning.capitalization(text) + \
                     FeaturesBeginning.first_token_likelihood(text) + \
                     FeaturesBeginning.full_word_indication(text) + \
                     FeaturesBeginning.common_first_word(text) + \
                     FeaturesBeginning.serial_number(text)
-                isCorrectFirstInGroup = is_correct_first_in_group(element, beginning_score)
-                if (isCorrectFirstInGroup == -1):
-                    substract_from_total_count += 1
-                if (isCorrectFirstInGroup == 1):
-                    correct_beginning_segments += 1
 
                 middle_score = \
                     FeaturesMiddle.cut_from_both_sides(text) + \
                     FeaturesMiddle.serial_number(text)
-                isCorrectMiddleInGroup = is_correct_middle_in_group(element, middle_score)
-                if (isCorrectMiddleInGroup == 1):
-                    correct_middle_segments += 1
 
                 end_score = \
                     FeaturesEnd.EOSPunctuation(text) + \
@@ -118,7 +115,40 @@ def FeatureCalculation(set):
                     FeaturesEnd.last_token_likelihood(text) + \
                     FeaturesEnd.unlikely_last_token_penalty(text) + \
                     FeaturesEnd.serial_number(text)
-                isCorrectLastInGroup = is_correct_last_in_group(element, end_score)
+
+                is_beginning = False
+                is_middle = False
+                is_end = False
+
+                if (max(beginning_score, middle_score, end_score) == beginning_score):
+                    is_beginning = True
+                    if end_score >= END_THRESHOLD:
+                        is_end = True
+                if (max(beginning_score, middle_score, end_score) == end_score):
+                    is_end = True
+                    if beginning_score >= BEGINNING_THRESHOLD:
+                        is_beginning = True
+                if (max(beginning_score, middle_score, end_score) == middle_score):
+                    if not is_beginning and not is_end:
+                        is_middle = True
+
+                # print element[2]
+                # print 'is_beginning: ', is_beginning
+                # print 'is_middle: ', is_middle
+                # print 'is_end: ', is_end
+
+                isCorrectFirstInGroup = is_correct_first_in_group(element, is_beginning)
+                # print 'isCorrectFirstInGroup: ', isCorrectFirstInGroup
+                if (isCorrectFirstInGroup == 1):
+                    correct_beginning_segments += 1
+
+                isCorrectMiddleInGroup = is_correct_middle_in_group(element, is_middle)
+                # print 'isCorrectMiddleInGroup: ', isCorrectMiddleInGroup
+                if (isCorrectMiddleInGroup == 1):
+                    correct_middle_segments += 1
+
+                isCorrectLastInGroup = is_correct_last_in_group(element, is_end)
+                # print 'isCorrectLastInGroup: ', isCorrectLastInGroup
                 if (isCorrectLastInGroup == 1):
                     correct_end_segments += 1
 
@@ -127,13 +157,12 @@ def FeatureCalculation(set):
                          [end_score] + [isCorrectLastInGroup]
             output_rows.append(output_row)
 
-
     with open('mini_dev_results_file_2.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(header)
         for row in output_rows:
             writer.writerow(row)
-        total_valid_sentences = number_of_segments-substract_from_total_count
+        total_valid_sentences = number_of_segments-subtract_from_total_count
         beginning_precision = correct_beginning_segments/total_valid_sentences
         middle_precision = correct_middle_segments/float(total_valid_sentences)
         end_precision = correct_end_segments/float(total_valid_sentences)
