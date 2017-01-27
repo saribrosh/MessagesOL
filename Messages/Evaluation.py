@@ -11,7 +11,6 @@ END_THRESHOLD = 2.3
 BEGINNING_THRESHOLD = 4
 
 def is_correct_first_in_group(element, is_beginning):
-    print element
     if element[3] == '-1':
         return -1
     else:
@@ -56,6 +55,21 @@ def is_correct_last_in_group(element, is_end):
             else:
                 return 0
 
+def is_correct_standalone(element, is_standalone):
+    if element[3] == '-1':
+        return -1
+    else:
+        if (is_standalone):
+            if int(element[8]) == 1:
+                return 1
+            else:
+                return 0
+        else:
+            if int(element[8]) == 0:
+                return 1
+            else:
+                return 0
+
 def FeatureCalculation(set):
     number_of_segments = 0
     groups_dict = {}
@@ -85,12 +99,14 @@ def FeatureCalculation(set):
 
     header = header[1:] + ['Beginning Score'] + ['Beginning Correct'] + \
                         ['Middle Score'] + ['Middle Correct'] + \
-                        ['End Score'] + ['End Correct']
+                        ['End Score'] + ['End Correct'] + \
+                        ['Standalone Score'] + ['Standalone Correct']
     output_rows = []
     subtract_from_total_count = 0
     correct_beginning_segments = 0
     correct_middle_segments = 0
     correct_end_segments = 0
+    correct_standalone_segments = 0
 
     for group_id, group in groups_dict.iteritems():
         # segment level features
@@ -124,9 +140,12 @@ def FeatureCalculation(set):
                     FeaturesEndSegmentLevel.unlikely_last_token_penalty(text) + \
                     FeaturesEndSegmentLevel.serial_number(text)
 
+                standalone_score = float((beginning_score+end_score)/2)
+
                 is_beginning = False
                 is_middle = False
                 is_end = False
+                is_standalone = False
 
                 if (max(beginning_score, middle_score, end_score) == beginning_score):
                     is_beginning = True
@@ -140,6 +159,9 @@ def FeatureCalculation(set):
                     if not is_beginning and not is_end:
                         is_middle = True
 
+                if(is_beginning and is_end):
+                    is_standalone = True
+
                 isCorrectFirstInGroup = is_correct_first_in_group(element, is_beginning)
                 if (isCorrectFirstInGroup == 1):
                     correct_beginning_segments += 1
@@ -152,9 +174,14 @@ def FeatureCalculation(set):
                 if (isCorrectLastInGroup == 1):
                     correct_end_segments += 1            
 
+                isCorrectStandalone = is_correct_standalone(element, is_standalone)
+                if (isCorrectStandalone == 1):
+                    correct_standalone_segments += 1
+
             output_row = element + [beginning_score] + [isCorrectFirstInGroup] + \
                          [middle_score] + [isCorrectMiddleInGroup] + \
-                         [end_score] + [isCorrectLastInGroup]
+                         [end_score] + [isCorrectLastInGroup] + \
+                         [standalone_score] + [isCorrectStandalone]
             output_rows.append(output_row)
 
     with open('mini_dev_results_file_2.csv', 'wb') as csv_file:
@@ -166,6 +193,7 @@ def FeatureCalculation(set):
         beginning_precision = correct_beginning_segments/total_valid_sentences
         middle_precision = correct_middle_segments/float(total_valid_sentences)
         end_precision = correct_end_segments/float(total_valid_sentences)
+        standalone_precision = correct_standalone_segments/float(total_valid_sentences)
         writer.writerow(['total valid sentences: ' + str(total_valid_sentences)])
 
         writer.writerow(['correct beginning segments: ' + str(correct_beginning_segments)])
@@ -183,3 +211,7 @@ def FeatureCalculation(set):
         writer.writerow(['end precision: ' + str(end_precision)])
         print ('end precision: ', end_precision)
 
+        writer.writerow(['correct standalone segments: ' + str(correct_standalone_segments)])
+        print ('correct standalone segments: ', correct_standalone_segments)
+        writer.writerow(['standalone precision: ' + str(standalone_precision)])
+        print ('standalone precision: ', standalone_precision)
