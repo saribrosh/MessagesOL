@@ -102,3 +102,10 @@ def serial_number(segment):
             return 0
     return 0
 
+def calculate_segment_level_end_score(text):
+    score = EOSPunctuation(text) + \
+            full_word_indication(text) + \
+            last_token_likelihood(text) + \
+            unlikely_last_token_penalty(text) + \
+            serial_number(text)
+    return score

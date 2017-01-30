@@ -33,3 +33,8 @@ def serial_number(segment):
         else:
             return 0
     return 0
+
+def calculate_segment_level_middle_score(text):
+    score = cut_from_both_sides(text) + \
+            serial_number(text)
+    return score

@@ -1,7 +1,7 @@
 import DataProcessing
 import ResourceGeneration
 import LinguisticResources
-import Evaluation
+import FeatureCalculation
 
 def main():
     # data processing
@@ -25,7 +25,7 @@ def main():
 
     # evaluation
     # Runtime.FeatureCalculation(dev_dict, 'dev_set.csv')
-    Evaluation.FeatureCalculation('mini_dev_set.csv')
+    FeatureCalculation.FeatureCalculation('mini_dev_set.csv')
 
 if __name__ == "__main__":
     main()

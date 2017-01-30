@@ -89,3 +89,11 @@ def serial_number(segment):
         return FIRST_IN_SERIAL
     else:
         return 0
+
+def calculate_segment_level_beginning_score(text):
+    score = capitalization(text) + \
+            first_token_likelihood(text) + \
+            full_word_indication(text) + \
+            common_first_word(text) + \
+            serial_number(text)
+    return score
