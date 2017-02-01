@@ -5,6 +5,8 @@ import re
 PARTIAL_WORDS_SCORE = 5
 MIDDLE_IN_SERIAL = 10
 
+middle_serial = []
+
 def cut_from_both_sides(segment):
     tokenized = nltk.word_tokenize(segment)
     first_token = (tokenized[0]).lower()
@@ -16,7 +18,8 @@ def cut_from_both_sides(segment):
     else:
         return 0
 
-def serial_number(segment):
+def serial_number(key, segment):
+    global beginning_serial
     pattern = re.compile(r"(\(([2-9])\/([0-9])\))|(([2-9])\/([0-9])\-\-\-OL)")
     serial_found = re.match(pattern, segment)
     if serial_found:
@@ -29,12 +32,13 @@ def serial_number(segment):
         elif serial_found.group(6):
             total = int(serial_found.group(6))
         if serial < total:
+            middle_serial.append(key)
             return MIDDLE_IN_SERIAL
         else:
             return 0
     return 0
 
-def calculate_segment_level_middle_score(text):
+def calculate_segment_level_middle_score(key, text):
     score = cut_from_both_sides(text) + \
-            serial_number(text)
+            serial_number(key, text)
     return score

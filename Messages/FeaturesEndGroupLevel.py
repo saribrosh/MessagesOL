@@ -1,3 +1,6 @@
+import FeaturesBeginningSegmentLevel
+import FeaturesMiddleSegmentLevel
+
 ALL_CAPS_BONUS = 0.5
 ALL_OTHERS_ARE_NOT_CAPS = -2
 ALL_OTHERS_ARE_CAPS = 2
@@ -41,6 +44,7 @@ def group_capitalization(group):
             group_level_cap_end_feature[item] = MIXED_GROUP
 
     return group_level_cap_end_feature
+
 
 def calculate_group_level_end_score(group):
     scores = group_capitalization(group)

@@ -10,6 +10,7 @@ FULL_WORD_SCORE = 2
 COMMON_FIRST_TOKEN_SCORE = 2.5
 FIRST_IN_SERIAL = 10
 
+beginning_serial = []
 
 def capitalization(segment):
     seg = nltk.word_tokenize(segment)
@@ -82,18 +83,20 @@ def common_first_word(segment):
     else:
         return 0
 
-def serial_number(segment):
+def serial_number(key, segment):
+    global beginning_serial
     pattern = re.compile(r"\((1\/[0-9]\))|(1\/[0-9]\-\-\-OL)")
     serial_found = re.match(pattern, segment)
     if serial_found:
+        beginning_serial.append(key)
         return FIRST_IN_SERIAL
     else:
         return 0
 
-def calculate_segment_level_beginning_score(text):
+def calculate_segment_level_beginning_score(key, text):
     score = capitalization(text) + \
             first_token_likelihood(text) + \
             full_word_indication(text) + \
             common_first_word(text) + \
-            serial_number(text)
+            serial_number(key, text)
     return score

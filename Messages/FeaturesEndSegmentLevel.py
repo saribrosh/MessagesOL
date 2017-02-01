@@ -9,6 +9,7 @@ FULL_WORD_SCORE = 2
 UNCOMMON_LAST_TOKEN_SCORE = -2.5
 END_IN_SERIAL = 10
 
+end_serial = []
 
 def EOSPunctuation(segment):
     EOS_punctuation_list = [".", "?", "!", "..."]
@@ -84,7 +85,7 @@ def unlikely_last_token_penalty(segment):
 
     return 0
 
-def serial_number(segment):
+def serial_number(key, segment):
     pattern = re.compile(r"(\(([2-9])\/([0-9])\))|(([2-9])\/([0-9])\-\-\-OL)")
     serial_found = re.match(pattern, segment)
     if serial_found:
@@ -97,15 +98,17 @@ def serial_number(segment):
         elif serial_found.group(6):
             total = int(serial_found.group(6))
         if serial == total:
+            end_serial.append(key)
             return END_IN_SERIAL
         else:
             return 0
     return 0
 
-def calculate_segment_level_end_score(text):
+
+def calculate_segment_level_end_score(key, text):
     score = EOSPunctuation(text) + \
             full_word_indication(text) + \
             last_token_likelihood(text) + \
             unlikely_last_token_penalty(text) + \
-            serial_number(text)
+            serial_number(key, text)
     return score

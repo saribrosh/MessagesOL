@@ -45,6 +45,7 @@ def FeatureCalculation(set):
 
         # segment level features
         for element in group:
+            key = element[0]
             text = element[1]
             text = text.decode("utf-8")
             text = text.encode("ascii","ignore")
@@ -57,9 +58,9 @@ def FeatureCalculation(set):
                 if (element[4] == -1):
                     subtract_from_total_count += 1
 
-                seg_beginning_score = FeaturesBeginningSegmentLevel.calculate_segment_level_beginning_score(text)
-                seg_middle_score = FeaturesMiddleSegmentLevel.calculate_segment_level_middle_score(text)
-                seg_end_score = FeaturesEndSegmentLevel.calculate_segment_level_end_score(text)
+                seg_beginning_score = FeaturesBeginningSegmentLevel.calculate_segment_level_beginning_score(key, text)
+                seg_middle_score = FeaturesMiddleSegmentLevel.calculate_segment_level_middle_score(key, text)
+                seg_end_score = FeaturesEndSegmentLevel.calculate_segment_level_end_score(key, text)
                 seg_standalone_score = float((seg_beginning_score+seg_end_score)/2)
 
             segment_scores_dict[element[0]] = [seg_beginning_score, seg_middle_score, seg_end_score, seg_standalone_score]
@@ -80,23 +81,39 @@ def FeatureCalculation(set):
             segment_scores = [total_beginning_score, total_middle_score, total_end_score, total_standalone_score]
             segment_scores_dict[element[0]] = segment_scores
 
-        # position result calculation
-            segment_key = element[0]
-            segment_position_scores = segment_scores_dict.get(segment_key)
-            position_results = Evaluation.determine_element_position(segment_key, segment_position_scores)
-            element_position_results[segment_key] = position_results
-            element_success_info = Evaluation.compare_with_tagging(element, position_results)
-            element_success_info_dict[segment_key] = element_success_info
-
+        # veto feature: serial number
         for element in group:
             key = element[0]
-            output_row = element + segment_scores_dict[key] + element_success_info_dict[key]
+            if key in FeaturesBeginningSegmentLevel.beginning_serial:
+                (segment_scores_dict[key])[1] = 0
+                (segment_scores_dict[key])[2] = 0
+                (segment_scores_dict[key])[3] = 0
+            if key in FeaturesMiddleSegmentLevel.middle_serial:
+                (segment_scores_dict[key])[0] = 0
+                (segment_scores_dict[key])[2] = 0
+                (segment_scores_dict[key])[3] = 0
+            if key in FeaturesEndSegmentLevel.end_serial:
+                (segment_scores_dict[key])[0] = 0
+                (segment_scores_dict[key])[1] = 0
+                (segment_scores_dict[key])[3] = 0
+
+        # position result calculation
+            segment_position_scores = segment_scores_dict.get(key)
+            position_results = Evaluation.determine_element_position(key, segment_position_scores)
+            element_position_results[key] = position_results
+            element_success_info = Evaluation.compare_with_tagging(element, position_results)
+            element_success_info_dict[key] = element_success_info
+
+            output_row = [group_id] + \
+                         element + \
+                         segment_scores_dict[key] + \
+                         element_position_results[key] + \
+                         element_success_info_dict[key]
             output_rows.append(output_row)
 
-
     # reporting metrics
-
-    header = header[1:] + ['Beginning Score'] + ['Middle Score'] + ['End Score'] + ['Standalone Score'] + \
+    header = header[:] + ['Beginning Score'] + ['Middle Score'] + ['End Score'] + ['Standalone Score'] + \
+                         ['Result Beginning'] + ['Result Middle'] + ['Result End'] + ['Result Standalone'] + \
                          ['Beginning Correct'] + ['Middle Correct'] + ['End Correct'] + ['Standalone Correct']
 
     total_valid_sentences = number_of_segments-subtract_from_total_count
@@ -130,7 +147,7 @@ def FeatureCalculation(set):
     print end_precision
     print standalone_precision
 
-    with open('results_mini_dev.csv', 'wb') as csv_file:
+    with open('results_mini_dev_2.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(header)
         for row in output_rows:
@@ -144,3 +161,5 @@ def FeatureCalculation(set):
         writer.writerow(['end precision: ' + str(end_precision)])
         writer.writerow(['correct standalone segments: ' + str(correct_standalone_segments)])
         writer.writerow(['standalone precision: ' + str(standalone_precision)])
+
+    return output_rows
