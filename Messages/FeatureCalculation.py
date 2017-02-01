@@ -14,6 +14,7 @@ STANDALONE_END = 10
 def FeatureCalculation(set):
     number_of_segments = 0
     groups_dict = {}
+    output_rows = []
     with open(set, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         header = (csvfile.readline()).split(',')
@@ -39,10 +40,6 @@ def FeatureCalculation(set):
     element_position_results = {}
     element_success_info_dict = {}
     subtract_from_total_count = 0
-    correct_beginning_segments = 0
-    correct_middle_segments = 0
-    correct_end_segments = 0
-    correct_standalone_segments = 0
 
     for group_id, group in groups_dict.iteritems():
 
@@ -80,7 +77,8 @@ def FeatureCalculation(set):
             total_middle_score = scores[1] #+ group_middle_scores[i]
             total_end_score = scores[2] + group_end_scores[i]
             total_standalone_score = scores[3] #+ group_standalone_scores[i]
-            segment_scores_dict[element[0]] = [total_beginning_score, total_middle_score, total_end_score, total_standalone_score]
+            segment_scores = [total_beginning_score, total_middle_score, total_end_score, total_standalone_score]
+            segment_scores_dict[element[0]] = segment_scores
 
         # position result calculation
             segment_key = element[0]
@@ -90,40 +88,59 @@ def FeatureCalculation(set):
             element_success_info = Evaluation.compare_with_tagging(element, position_results)
             element_success_info_dict[segment_key] = element_success_info
 
-    # reporting metrics
+        for element in group:
+            key = element[0]
+            output_row = element + segment_scores_dict[key] + element_success_info_dict[key]
+            output_rows.append(output_row)
 
+
+    # reporting metrics
 
     header = header[1:] + ['Beginning Score'] + ['Middle Score'] + ['End Score'] + ['Standalone Score'] + \
                          ['Beginning Correct'] + ['Middle Correct'] + ['End Correct'] + ['Standalone Correct']
 
-    # with open('mini_dev_results_file_2.csv', 'wb') as csv_file:
-    #     writer = csv.writer(csv_file)
-    #     writer.writerow(header)
-    #     for row in output_rows:
-    #         writer.writerow(row)
-    #     total_valid_sentences = number_of_segments-subtract_from_total_count
-    #     beginning_precision = correct_beginning_segments/total_valid_sentences
-    #     middle_precision = correct_middle_segments/float(total_valid_sentences)
-    #     end_precision = correct_end_segments/float(total_valid_sentences)
-    #     standalone_precision = correct_standalone_segments/float(total_valid_sentences)
-    #     writer.writerow(['total valid sentences: ' + str(total_valid_sentences)])
-    #
-    #     writer.writerow(['correct beginning segments: ' + str(correct_beginning_segments)])
-    #     print ('correct beginning segments: ', correct_beginning_segments)
-    #     writer.writerow(['beginning precision: ' + str(beginning_precision)])
-    #     print ('beginning precision: ', beginning_precision)
-    #
-    #     writer.writerow(['correct middle segments: ' + str(correct_middle_segments)])
-    #     print ('correct middle segments: ', correct_middle_segments)
-    #     writer.writerow(['middle precision: ' + str(middle_precision)])
-    #     print ('middle precision: ', middle_precision)
-    #
-    #     writer.writerow(['correct end segments: ' + str(correct_end_segments)])
-    #     print ('correct end segments: ', correct_end_segments)
-    #     writer.writerow(['end precision: ' + str(end_precision)])
-    #     print ('end precision: ', end_precision)
-    #
-    #     writer.writerow(['correct standalone segments: ' + str(correct_standalone_segments)])
-    #     print ('correct standalone segments: ', correct_standalone_segments)
-    #     writer.writerow(['standalone precision: ' + str(standalone_precision)])
-    #     print ('standalone precision: ', standalone_precision)
+    total_valid_sentences = number_of_segments-subtract_from_total_count
+    correct_beginning_segments = 0
+    correct_middle_segments = 0
+    correct_end_segments = 0
+    correct_standalone_segments = 0
+
+    for key, value in element_success_info_dict.iteritems():
+        if value[0] == 1:
+            correct_beginning_segments += 1
+        if value[1] == 1:
+            correct_middle_segments += 1
+        if value[2] == 1:
+            correct_end_segments += 1
+        if value[3] == 1:
+            correct_standalone_segments += 1
+
+    print correct_beginning_segments
+    print correct_middle_segments
+    print correct_end_segments
+    print correct_standalone_segments
+
+    beginning_precision = correct_beginning_segments/float(total_valid_sentences)
+    middle_precision = correct_middle_segments/float(total_valid_sentences)
+    end_precision = correct_end_segments/float(total_valid_sentences)
+    standalone_precision = correct_standalone_segments/float(total_valid_sentences)
+
+    print beginning_precision
+    print middle_precision
+    print end_precision
+    print standalone_precision
+
+    with open('results_mini_dev.csv', 'wb') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(header)
+        for row in output_rows:
+            writer.writerow(row)
+
+        writer.writerow(['correct beginning segments: ' + str(correct_beginning_segments)])
+        writer.writerow(['beginning precision: ' + str(beginning_precision)])
+        writer.writerow(['correct middle segments: ' + str(correct_middle_segments)])
+        writer.writerow(['middle precision: ' + str(middle_precision)])
+        writer.writerow(['correct end segments: ' + str(correct_end_segments)])
+        writer.writerow(['end precision: ' + str(end_precision)])
+        writer.writerow(['correct standalone segments: ' + str(correct_standalone_segments)])
+        writer.writerow(['standalone precision: ' + str(standalone_precision)])
