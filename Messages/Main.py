@@ -2,6 +2,7 @@ import DataProcessing
 import ResourceGeneration
 import LinguisticResources
 import FeatureCalculation
+import GroupCompositionValidation
 
 def main():
     # data processing
@@ -24,7 +25,11 @@ def main():
     # feature calculation
 
     # evaluation
-    results = FeatureCalculation.FeatureCalculation('mini_dev_set.csv')
+    dict_with_results = FeatureCalculation.FeatureCalculation('mini_dev_set.csv')
+    invalid_groups_dict = GroupCompositionValidation.validate_group(dict_with_results)
+
+    for key, value in invalid_groups_dict.iteritems():
+        print key, value
 
 if __name__ == "__main__":
     main()

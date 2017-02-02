@@ -132,20 +132,20 @@ def FeatureCalculation(set):
         if value[3] == 1:
             correct_standalone_segments += 1
 
-    print correct_beginning_segments
-    print correct_middle_segments
-    print correct_end_segments
-    print correct_standalone_segments
+    print 'correct_beginning_segments: ', correct_beginning_segments
+    print 'correct_middle_segments: ', correct_middle_segments
+    print 'correct_end_segments: ', correct_end_segments
+    print 'correct_standalone_segments: ', correct_standalone_segments
 
     beginning_precision = correct_beginning_segments/float(total_valid_sentences)
     middle_precision = correct_middle_segments/float(total_valid_sentences)
     end_precision = correct_end_segments/float(total_valid_sentences)
     standalone_precision = correct_standalone_segments/float(total_valid_sentences)
 
-    print beginning_precision
-    print middle_precision
-    print end_precision
-    print standalone_precision
+    print 'beginning: ', beginning_precision
+    print 'middle: ', middle_precision
+    print 'end: ', end_precision
+    print 'standalone: ', standalone_precision
 
     with open('results_mini_dev_2.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
@@ -162,4 +162,21 @@ def FeatureCalculation(set):
         writer.writerow(['correct standalone segments: ' + str(correct_standalone_segments)])
         writer.writerow(['standalone precision: ' + str(standalone_precision)])
 
-    return output_rows
+    groups_dict_with_results = {}
+    previous_group_index = -1
+    current_group = []
+    for row in output_rows:
+        current_group_index = row[0]
+        if current_group_index == previous_group_index:
+            current_group.append(row[1:])
+        else:
+            if previous_group_index == -1:
+                current_group.append(row[1:])
+                previous_group_index = current_group_index
+            else:
+                groups_dict_with_results[previous_group_index] = current_group
+                current_group = [row[1:]]
+            previous_group_index = current_group_index
+    groups_dict_with_results[previous_group_index] = current_group
+
+    return groups_dict_with_results
