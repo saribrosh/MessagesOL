@@ -1,5 +1,3 @@
-import FeaturesBeginningSegmentLevel
-import FeaturesMiddleSegmentLevel
 
 ALL_CAPS_BONUS = 0.5
 ALL_OTHERS_ARE_NOT_CAPS = -2

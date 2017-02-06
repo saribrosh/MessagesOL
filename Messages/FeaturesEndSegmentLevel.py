@@ -8,6 +8,7 @@ FACTOR = 22
 FULL_WORD_SCORE = 2
 UNCOMMON_LAST_TOKEN_SCORE = -2.5
 END_IN_SERIAL = 10
+EMOJI_SCORE = 4
 
 end_serial = []
 
@@ -104,11 +105,21 @@ def serial_number(key, segment):
             return 0
     return 0
 
+def last_token_different_endcoding(segment):
+    tokens = segment.split(' ')
+    last_token = (tokens[-1:])[0]
+    if len(last_token) == 0:
+        return EMOJI_SCORE
+    else:
+        return 0
+
 
 def calculate_segment_level_end_score(key, text):
+    last_token_different_endcoding(text)
     score = EOSPunctuation(text) + \
             full_word_indication(text) + \
             last_token_likelihood(text) + \
             unlikely_last_token_penalty(text) + \
-            serial_number(key, text)
+            serial_number(key, text) + \
+            last_token_different_endcoding(text)
     return score

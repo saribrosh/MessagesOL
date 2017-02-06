@@ -2,6 +2,7 @@ from __future__ import division
 import FeaturesBeginningSegmentLevel
 import FeaturesMiddleSegmentLevel
 import FeaturesEndSegmentLevel
+import FeaturesBeginningGroupLevel
 import FeaturesEndGroupLevel
 import Evaluation
 import csv
@@ -66,7 +67,7 @@ def FeatureCalculation(set):
             segment_scores_dict[element[0]] = [seg_beginning_score, seg_middle_score, seg_end_score, seg_standalone_score]
 
         # group level features
-        # group_beginning_scores = []
+        group_beginning_scores = FeaturesBeginningGroupLevel.calculate_group_level_beginning_score(group)
         # group_middle_scores = []
         group_end_scores = FeaturesEndGroupLevel.calculate_group_level_end_score(group)
         # group_standalone_scores = []
@@ -74,7 +75,7 @@ def FeatureCalculation(set):
         for i in range(0,len(group)):
             element = group[i]
             scores = segment_scores_dict.get(element[0])
-            total_beginning_score = scores[0] #+ group_beginning_scores[i]
+            total_beginning_score = scores[0] + group_beginning_scores[i]
             total_middle_score = scores[1] #+ group_middle_scores[i]
             total_end_score = scores[2] + group_end_scores[i]
             total_standalone_score = scores[3] #+ group_standalone_scores[i]
@@ -147,7 +148,7 @@ def FeatureCalculation(set):
     print 'end: ', end_precision
     print 'standalone: ', standalone_precision
 
-    with open('results_mini_dev_2.csv', 'wb') as csv_file:
+    with open('results_mini_dev.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(header)
         for row in output_rows:
